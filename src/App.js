@@ -3,7 +3,6 @@ import DeckGL from '@deck.gl/react';
 import {LineLayer} from '@deck.gl/layers';
 import {GeoJsonLayer, PolygonLayer} from "deck.gl";
 import {StaticMap} from 'react-map-gl';
-import json_buildings from "./map.json";
 
 const DATA_URL = 'http://localhost:3000/map.json'; 
 
@@ -12,8 +11,8 @@ const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJa
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
-  longitude: -122.41669,
-  latitude: 37.7853,
+  longitude: -3.1543883,
+  latitude:  55.9556674,
   zoom: 13,
   pitch: 0,
   bearing: 0
@@ -37,6 +36,34 @@ const polygonData = [
   }
 ];
 
+function getTooltip(object) {
+  console.log(object);
+  return (
+    object && {
+      html: `\
+  <div><b>Average Property Value</b></div>
+  `
+    }
+  );
+}
+
+function getBuildingElevation(data) {
+  let otherTags = data.properties.other_tags;
+
+  if(otherTags) {
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    console.log(data.properties.other_tags);
+    const extractBuildingHeight = /building:levels"=>"([0-9]+)/;
+    const match = otherTags.match(extractBuildingHeight);
+    if(match) {
+      return Number(match[1]);
+    } else {
+      return 1;
+    }
+  }
+
+}
+
 function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
 
   const LAYER_POLY = new PolygonLayer({
@@ -50,7 +77,7 @@ function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
     getPolygon: d => d.contours,
     getLineColor: [80, 80, 80],
     getFillColor: [80, 80, 80],
-    getElevation: d => d.elevation,
+    getElevation:10,
     getLineWidth: 250
   });
 
@@ -62,7 +89,9 @@ function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
     filled: true,
     extruded: true,
     wireframe: true,
-    getElevation: f => 10,
+    getElevation: d => {
+      return getBuildingElevation(d) * 3;
+        } ,
     getFillColor: f => [255, 255, 255],
     getLineColor: [255, 255, 255],
     pickable: true
@@ -84,10 +113,13 @@ function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
       layers={layers}
+      getTooltip={getTooltip}
       mapStyle={mapStyle}
     >
       <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
     </DeckGL>
   );
 }
+
+
 export default App;
