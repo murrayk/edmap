@@ -7,7 +7,15 @@ import {StaticMap} from 'react-map-gl';
 const DATA_URL = 'http://localhost:3000/map.json'; 
 
 // Set your mapbox access token here
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ';
+//const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ';
+// Set your mapbox token here
+const MAPBOX_TOKEN = ''; // eslint-disable-line
+// mapbox style file path
+const MAPBOX_STYLE =
+  'https://murrayk.github.io/london3dmap/london-style.json';
+
+  const MAPBOX_STYLE_EDINBURGH =
+  'https://murrayk.github.io/edinburgh3dmap/style-edinburgh.json';
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
@@ -64,7 +72,7 @@ function getBuildingElevation(data) {
 
 }
 
-function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
+function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
 
   const LAYER_POLY = new PolygonLayer({
     id: "poly-layers",
@@ -114,9 +122,13 @@ function App({data = DATA_URL, mapStyle = 'mapbox://styles/mapbox/light-v9'}) {
       controller={true}
       layers={layers}
       getTooltip={getTooltip}
-      mapStyle={mapStyle}
     >
-      <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
+      <StaticMap
+        reuseMaps
+        mapStyle={mapStyle}
+        preventStyleDiffing={true}
+        mapboxApiAccessToken={MAPBOX_TOKEN}
+      />
     </DeckGL>
   );
 }
