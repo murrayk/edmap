@@ -100,7 +100,7 @@ function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
     getElevation: d => {
       return getBuildingElevation(d) * 3;
         } ,
-    getFillColor: f => [255, 255, 255],
+    getFillColor: f => [255, 51, 51],
     getLineColor: [255, 255, 255],
     pickable: true
   })
