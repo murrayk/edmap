@@ -4,7 +4,7 @@ import {LineLayer} from '@deck.gl/layers';
 import {GeoJsonLayer, PolygonLayer} from "deck.gl";
 import {StaticMap} from 'react-map-gl';
 
-const DATA_URL = 'http://localhost:3000/map.json'; 
+const DATA_URL = 'map.json'; 
 
 // Set your mapbox access token here
 //const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ';
@@ -15,7 +15,7 @@ const MAPBOX_STYLE =
   'https://murrayk.github.io/london3dmap/london-style.json';
 
   const MAPBOX_STYLE_EDINBURGH =
-  'http://localhost:3000/style-edinburgh.json';
+  'style-edinburgh.json';
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {

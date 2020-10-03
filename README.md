@@ -1,3 +1,11 @@
+## To Build and test production locally
+
+#### `npm run build`
+####  `cd build/`
+####  `http-server --cors -p 3000`
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
