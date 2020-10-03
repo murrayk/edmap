@@ -14,10 +14,10 @@
     "profile": "mercator",
     "scale": 1,
 
-    "tiles": ["https://murrayk.github.io/edinburgh3dmap/edinburgh/{z}/{x}/{y}.pbf"],
+    "tiles": ["http://localhost:3000/edinburgh/{z}/{x}/{y}.pbf"],
     "tilejson": "2.0.0",
     "scheme": "xyz",
-    "grids": ["https://murrayk.github.io/edinburgh3dmap/edinburgh/{z}/{x}/{y}.grid.json"],
+    "grids": ["http://localhost:3000/edinburgh/{z}/{x}/{y}.grid.json"],
     "_prefs": {
         "saveCenter": true,
         "disabled": [],
@@ -720,5 +720,5 @@
         }
     }],
     "zoom": 7,
-    "tileUrl": "https://murrayk.github.io/edinburgh3dmap/edinburgh/4/7/6.pbf"
+    "tileUrl": "http://localhost:3000/edinburgh/4/7/6.pbf"
 }

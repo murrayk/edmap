@@ -15,7 +15,7 @@ const MAPBOX_STYLE =
   'https://murrayk.github.io/london3dmap/london-style.json';
 
   const MAPBOX_STYLE_EDINBURGH =
-  'https://murrayk.github.io/edinburgh3dmap/style-edinburgh.json';
+  'http://localhost:3000/style-edinburgh.json';
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
