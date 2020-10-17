@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import DeckGL from '@deck.gl/react';
 import {LineLayer} from '@deck.gl/layers';
 import {GeoJsonLayer, PolygonLayer} from "deck.gl";
 import {StaticMap} from 'react-map-gl';
+import InfoBox from './components/InfoBox'
+import {InfoContext} from "./providers/InfoContext";
 
-const DATA_URL = 'map.json'; 
+const DATA_URL = 'edinburgh-buildings.json'; 
 
 // Set your mapbox access token here
 //const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ';
@@ -26,6 +28,8 @@ const INITIAL_VIEW_STATE = {
   bearing: 0
 };
 
+
+
 // Data to be used by the LineLayer
 const data = [
   {sourcePosition: [-122.41669, 37.7853], targetPosition: [-122.41669, 37.781]}
@@ -44,20 +48,11 @@ const polygonData = [
   }
 ];
 
-function getTooltip(object) {
-  console.log(object);
-  return (
-    object && {
-      html: `\
-  <div><b>Average Property Value</b></div>
-  `
-    }
-  );
-}
+
 
 function getBuildingElevation(data) {
   let otherTags = data.properties.other_tags;
-
+  console.log(process.env);
   if(otherTags) {
     console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     console.log(data.properties.other_tags);
@@ -73,7 +68,8 @@ function getBuildingElevation(data) {
 }
 
 function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
-
+  console.log(data)
+  const [info, setInfo] = useState( {title:"aaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"});
   const LAYER_POLY = new PolygonLayer({
     id: "poly-layers",
     data: polygonData,
@@ -89,6 +85,17 @@ function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
     getLineWidth: 250
   });
 
+  const getInfo = ({object}) => {
+    console.log(object);
+    console.log("PROCESS");
+    const title = object.properties.info;
+    setInfo(before => { 
+      console.log("before");
+      console.log(before);
+      return {title: title};
+    });
+  }
+
   const GEO_JSON_LAYER = new GeoJsonLayer({
     id: 'geojson',
     data,
@@ -100,12 +107,18 @@ function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
     getElevation: d => {
       return getBuildingElevation(d) * 3;
         } ,
-    getFillColor: f => [255, 51, 51],
+    getFillColor: d =>  d.properties.selected ? [100, 105, 155] : [55, 205, 155],
+    // updateTriggers: {
+    //   getFillColor: [
+    //     this.state.hoveredObject
+    //       ? this.state.hoveredObject.properties.id
+    //       : null
+    //   ]
+    // },
     getLineColor: [255, 255, 255],
+    onClick: (event) => getInfo(event),
     pickable: true
   })
-
-  console.log()
 
 
   const layers = [
@@ -121,14 +134,16 @@ function App({data = DATA_URL, mapStyle = MAPBOX_STYLE_EDINBURGH}) {
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
       layers={layers}
-      getTooltip={getTooltip}
     >
+
       <StaticMap
         reuseMaps
         mapStyle={mapStyle}
         preventStyleDiffing={true}
         mapboxApiAccessToken={MAPBOX_TOKEN}
-      />
+      >
+      <InfoBox info={info} /></StaticMap>
+
     </DeckGL>
   );
 }
