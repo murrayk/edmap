@@ -27,6 +27,10 @@
 .info-box {
   background: rgba(76, 175, 80, 0.3);
   color: red;
+  position: absolute;
+  right: 10% ;
+  top: 10%;
+  width: 30%;
 }
 
 .App-link {

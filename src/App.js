@@ -80,8 +80,7 @@ function getBuildingElevation(data) {
 
 export default class App extends Component {
   state = {
-    title: "aaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    features: features
+    title: "aaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   };
 
 
@@ -98,7 +97,6 @@ export default class App extends Component {
           }
           object.properties.selected = true;
           lastSelectedBuilding.hoveredObject = object;
-          //deselect all others  
         } else {
           object.properties.selected = false;
         }
@@ -118,7 +116,7 @@ export default class App extends Component {
 
     const GEO_JSON_LAYER = new GeoJsonLayer({
       id: 'geojson',
-      data: this.state.features,
+      data,
       opacity: 0.8,
       stroked: false,
       filled: true,
@@ -135,7 +133,7 @@ export default class App extends Component {
       updateTriggers: {
         getFillColor: [
           this.state.hoveredObject
-            ? last_selected++
+            ? this.state.hoveredObject.properties.id
             : null
         ]
       },
