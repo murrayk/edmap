@@ -1,71 +1,62 @@
 import React, { useContext, setState, Component } from 'react';
 import DeckGL from '@deck.gl/react';
-import { LineLayer } from '@deck.gl/layers';
 import { GeoJsonLayer, PolygonLayer } from "deck.gl";
 import { StaticMap } from 'react-map-gl';
 import InfoBox from './components/InfoBox'
-import { InfoContext } from "./providers/InfoContext";
-import { getJSONData } from "./DataLoader";
+import AboutBox from './components/AboutBox'
+import { _MapContext as MapContext, NavigationControl } from 'react-map-gl';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
+import { registerLoaders } from '@loaders.gl/core';
+import { GLTFLoader } from '@loaders.gl/gltf';
+import { useState, useCallback } from 'react';
+import { FlyToInterpolator } from 'deck.gl';
 
+
+registerLoaders(GLTFLoader);
 const DATA_URL = 'edinburgh-buildings.json';
+const FORTH_ROAD_BRIDGE_URL = 'forth-road-bridge.json';
 
-// Set your mapbox access token here
-//const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ';
-// Set your mapbox token here
 const MAPBOX_TOKEN = ''; // eslint-disable-line
 // mapbox style file path
 const MAPBOX_STYLE =
   'https://murrayk.github.io/london3dmap/london-style.json';
 
 const MAPBOX_STYLE_EDINBURGH =
-  'style-edinburgh.json';
+  'dev-style-edinburgh.json';
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
-  longitude: -3.1543883,
-  latitude: 55.9556674,
-  zoom: 13,
-  pitch: 0,
+  longitude: -3.1517904,
+  latitude: 55.9557288,
+  zoom: 16,
+  pitch: 60,
   bearing: 0
 };
 
-var features = {
-  "type": "FeatureCollection",
-  "name": "multipolygons",
-  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-  "features": [
-  { "type": "Feature", "properties": { id:1, selected:false, "osm_way_id": "77869807", "building": "yes", "info": "Owner Joe Bloggs First Floor"  ,"other_tags": "\"building:levels\"=>\"6\",\"wikidata\"=>\"Q7309422\"" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -3.1517904, 55.9557288 ], [ -3.1517529, 55.9557268 ], [ -3.1517617, 55.9556757 ], [ -3.1512664, 55.9556491 ], [ -3.1512644, 55.9556612 ], [ -3.1510791, 55.9556513 ], [ -3.1511316, 55.9553431 ], [ -3.1511237, 55.9553195 ], [ -3.1510771, 55.955317 ], [ -3.1510304, 55.9553145 ], [ -3.1510263, 55.9553384 ], [ -3.1509417, 55.9553339 ], [ -3.1508914, 55.9556274 ], [ -3.1505404, 55.9556086 ], [ -3.1505378, 55.9556236 ], [ -3.1505032, 55.9556218 ], [ -3.1504952, 55.9556689 ], [ -3.1505297, 55.9556707 ], [ -3.1505213, 55.9557201 ], [ -3.1508698, 55.9557388 ], [ -3.1508566, 55.9558156 ], [ -3.1508205, 55.9560265 ], [ -3.1508188, 55.9560369 ], [ -3.1508441, 55.9560383 ], [ -3.1508419, 55.956051 ], [ -3.150903, 55.9560543 ], [ -3.150905, 55.9560429 ], [ -3.1509171, 55.9560436 ], [ -3.1509191, 55.9560314 ], [ -3.1510083, 55.9560362 ], [ -3.1510571, 55.9557515 ], [ -3.1517465, 55.9557885 ], [ -3.1517482, 55.9557786 ], [ -3.1517642, 55.9557794 ], [ -3.151766, 55.9557688 ], [ -3.1517834, 55.9557697 ], [ -3.1517904, 55.9557288 ] ] ] ] } },
-  { "type": "Feature", "properties": { id:2, selected:false, "osm_way_id": "477670604", "building": "yes", "other_tags": "\"building:levels\"=>\"3\"" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -3.1513162, 55.9553529, 100 ], [ -3.1512742, 55.9553507, 100 ], [ -3.1511316, 55.9553431, 100 ], [ -3.1510791, 55.9556513, 100 ], [ -3.1512644, 55.9556612, 100 ], [ -3.1512664, 55.9556491, 100 ], [ -3.1513162, 55.9553529, 100 ] ] ] ] } }
-  
-  ]
-  };
-  
-var last_selected = 1000;
-var lastSelectedBuilding = {hoveredObject: null};
-// Data to be used by the LineLayer
-const data = [
-  { sourcePosition: [-122.41669, 37.7853], targetPosition: [-122.41669, 37.781] }
-];
 
-const polygonData = [
+let lastSelectedBuilding = { hoveredObject: null };
+
+/**
+ * Data format:
+ * [
+ *   {name: 'Colma (COLM)', address: '365 D Street, Colma CA 94014', exits: 4214, coordinates: [-122.466233, 37.684638]},
+ *   ...
+ * ]
+ */
+
+
+const forthRoadPosition = [
   {
-    contours: [
-      [-91.72307036099997, 31.814196736000035],
-      [-122.41669, 37.781],
-      [-95.52274057225983, 30.131426214982195],
-      [-91.72307036099997, 31.814196736000035]
-    ],
-    name: "firstPolygon",
-    elevation: 10000
+    coordinates: [-3.1517904, 55.9557288]
   }
 ];
 
 
 function getBuildingElevation(data) {
   let otherTags = data.properties.other_tags;
+  console.log("environment");
   console.log(process.env);
   if (otherTags) {
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     console.log(data.properties.other_tags);
     const extractBuildingHeight = /building:levels"=>"([0-9]+)/;
     const match = otherTags.match(extractBuildingHeight);
@@ -80,7 +71,15 @@ function getBuildingElevation(data) {
 
 export default class App extends Component {
   state = {
-    title: "aaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    title: "Click on coloured buildings for info...",
+    hoveredObject: null,
+    initialViewState: {
+      longitude: -3.1517904,
+      latitude: 55.9557288,
+      zoom: 16,
+      pitch: 60,
+      bearing: 0
+    }
   };
 
 
@@ -92,7 +91,7 @@ export default class App extends Component {
       console.log(object);
       if (object) {
         if (object.properties.selected === false) {
-          if(lastSelectedBuilding.hoveredObject !== null ) {
+          if (lastSelectedBuilding.hoveredObject !== null) {
             lastSelectedBuilding.hoveredObject.properties.selected = false;
           }
           object.properties.selected = true;
@@ -102,16 +101,7 @@ export default class App extends Component {
         }
         this.setState({ hoveredObject: object, title: object.properties.info });
       }
-      
-      // console.log(object);
-      // console.log("PROCESS");
-      // console.log(this);
 
-      // setInfo(before => { 
-      //   console.log("before");
-      //   console.log(before);
-      //   return {title: title};
-      // });
     }
 
     const GEO_JSON_LAYER = new GeoJsonLayer({
@@ -127,8 +117,8 @@ export default class App extends Component {
       },
       getFillColor: d => {
         console.log("updating fill color for id " + d.properties.id);
-        console.log("selected " + d.properties.selected );
-        return d.properties.selected ? [100, 105, 155] : [55, 205, 155]
+        console.log("selected " + d.properties.selected);
+        return d.properties.selected ? [255, 36, 0] : [55, 205, 155]
       },
       updateTriggers: {
         getFillColor: [
@@ -142,30 +132,64 @@ export default class App extends Component {
       pickable: true
     })
 
+    const scenegraph = new ScenegraphLayer({
+      id: 'scenegraph-layer',
+      data: FORTH_ROAD_BRIDGE_URL,
+      pickable: true,
+      scenegraph: 'forth-rail-bridge.glb',
+      getPosition: d => {
+        console.log(d);
+        return d.coordinates;
+      },
+      getOrientation: d => [0, 105, 90],
+      sizeScale: 1.1,
+      _lighting: 'pbr',
+      getColor: c => [130, 0, 0, 200]
+    });
 
+    console.log(scenegraph);
     const layers = [
-      GEO_JSON_LAYER
+      scenegraph
     ];
+
+    const goToBridges = () => {
+      console.log("HEllo");
+      this.setState({
+        initialViewState: {
+          longitude:  -3.3878494935,
+          latitude: 55.9981315604,
+          zoom: 14,
+          pitch: 60,
+          bearing: 80,
+          transitionDuration: 8000,
+          transitionInterpolator: new FlyToInterpolator()
+        }
+      })
+    };
 
 
 
     return (
-      <DeckGL
-        initialViewState={INITIAL_VIEW_STATE}
-        controller={true}
-        layers={layers}
-      >
-
-        <StaticMap
-          reuseMaps
-          mapStyle={mapStyle}
-          preventStyleDiffing={true}
-          mapboxApiAccessToken={MAPBOX_TOKEN}
+      <div>
+        <AboutBox goToBridges={goToBridges} />
+        <DeckGL
+          initialViewState={this.state.initialViewState}
+          controller={true}
+          layers={layers}
         >
-          <InfoBox info={this.state} /></StaticMap>
 
-      </DeckGL>
+          <StaticMap
+            reuseMaps
+            mapStyle={mapStyle}
+            preventStyleDiffing={true}
+            mapboxApiAccessToken={MAPBOX_TOKEN}
+          >
+
+            <InfoBox info={this.state} /></StaticMap>
+        </DeckGL>
+      </div>
     );
+
   }
 }
 

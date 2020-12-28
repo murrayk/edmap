@@ -4,9 +4,9 @@ import '../App.css';
 const InfoBox = ( {info}) => {
 
     return(
-        <div className="ui container">
+        <div className="ui container" >
         <div className="ui segment">
-        Hello Murray 2{info.title}
+        {info.title}
         </div>
         </div>
     )
