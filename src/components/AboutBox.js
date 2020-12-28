@@ -15,7 +15,7 @@ const AboutBox = (props) => {
             </div>
             <div className="column">
                 <h4 className="ui header" >Pickable GeoJson ROS Model</h4>
-                <button className="ui primary button">View Model</button>
+                <button className="ui primary button" onClick={props.goToRos} >View Model</button>
             </div>
         </div>
     )
