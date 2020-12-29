@@ -11,6 +11,10 @@
 # production
 /build
 
+# ignore vector tiles
+/docs/lothian
+/public/lothian
+
 # misc
 .DS_Store
 .env.local
