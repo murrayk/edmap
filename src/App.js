@@ -25,7 +25,7 @@ export default class App extends Component {
   layersFactory = new LayersFactory();
   state = {
     title: "Click on coloured buildings for info...",
-    hoveredObject: null,
+    selectedBuildingId: null,
     initialViewState: {
       longitude: -3.1517904,
       latitude: 55.9557288,
@@ -33,7 +33,7 @@ export default class App extends Component {
       pitch: 60,
       bearing: 0
     },
-    layers: [this.layersFactory.getBridgesLayer() ]
+    layers: []
   };
 
 
@@ -52,18 +52,22 @@ export default class App extends Component {
           zoom: 14,
           pitch: 60,
           bearing: 80,
-          transitionDuration: 8000,
-          transitionInterpolator: new FlyToInterpolator()
-        }
+          transitionDuration: 5000,
+          transitionInterpolator: new FlyToInterpolator(),
+        },
+        layers: [this.layersFactory.getBridgesLayer() ]
       })
     };
 
 
     const goToRos = () => {
 
-      const updateSelectedBuilding = (building) => {
-        this.setState(building);
-        this.setState({layers: this.layersFactory.getRosBuilding(updateSelectedBuilding)});
+      const getSelectedBuildingId = () => {
+        return this.state.selectedBuildingId;
+      }
+      const updateSelectedBuilding = (buildingDetails) => {
+        this.setState(buildingDetails);
+        this.setState({layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId)});
   
       };
       
@@ -74,10 +78,10 @@ export default class App extends Component {
           zoom: 16,
           pitch: 60,
           bearing: 0,
-          transitionDuration: 8000,
+          transitionDuration: 5000,
           transitionInterpolator: new FlyToInterpolator()
         },
-        layers: this.layersFactory.getRosBuilding(updateSelectedBuilding)
+        layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId)
       });
 
       

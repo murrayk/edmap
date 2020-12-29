@@ -26,26 +26,14 @@ export default class LayersFactory {
 
     }
 
-    getRosBuilding = (updateSelectedBuilding,) => {
-        console.log("app XXXXXXXXXXXXXXXXXXXXXxxxxx")
-        let lastSelectedBuilding = { hoveredObject: null };
+    getRosBuilding = (updateSelectedBuilding, getSelectedBuildingId) => {
+
 
         const selectBuildingOrFloor = ({ object }) => {
             console.log(object);
             if (object) {
-              if (object.properties.selected === false) {
-                if (lastSelectedBuilding.hoveredObject !== null) {
-                  lastSelectedBuilding.hoveredObject.properties.selected = false;
-                }
-                object.properties.selected = true;
-                lastSelectedBuilding.hoveredObject = object;
-              } else {
-                object.properties.selected = false;
-              }
-              updateSelectedBuilding({ hoveredObject: object, title: object.properties.info });
-
+              updateSelectedBuilding({ selectedBuildingId: object.properties.id, title: object.properties.info });
             }
-      
           }
       
 
@@ -79,12 +67,11 @@ export default class LayersFactory {
                 return getBuildingElevation(d) * 3;
             },
             getFillColor: d => {
-                console.log("updating fill color for id " + d.properties.id);
-                console.log("selected " + d.properties.selected);
-                return d.properties.selected ? [255, 36, 0] : [55, 205, 155]
+
+                return d.properties.id === getSelectedBuildingId() ? [255, 36, 0] : [55, 205, 155]
             },
             updateTriggers: {
-                getFillColor: () => console.log("HELADJKFHSAODJKHFKJ")
+                getFillColor: () => console.log("check fill")
             },
             getLineColor: [255, 255, 255],
             onClick: (event) => selectBuildingOrFloor(event),
