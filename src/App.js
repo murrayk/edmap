@@ -18,9 +18,6 @@ registerLoaders(GLTFLoader);
 const MAPBOX_TOKEN = ''; // not require all opensource
 // mapbox style file path
 
-
-const MAPBOX_STYLE_EDINBURGH = 'dev-style-edinburgh.json';
-
 export default class App extends Component {
   layersFactory = new LayersFactory();
   state = {
@@ -37,12 +34,11 @@ export default class App extends Component {
   };
 
 
-
-
-
   render() {
 
-    let mapStyle = MAPBOX_STYLE_EDINBURGH;
+    console.log("environment");
+    console.log(process.env);
+    let mapStyle = process.NODE_ENV === "development" ? 'dev-style-edinburgh.json' : 'style-edinburgh.json';
 
     const goToBridges = () => {
       this.setState({

@@ -30,7 +30,6 @@ export default class LayersFactory {
 
 
         const selectBuildingOrFloor = ({ object }) => {
-            console.log(object);
             if (object) {
               updateSelectedBuilding({ selectedBuildingId: object.properties.id, title: object.properties.info });
             }
@@ -40,8 +39,6 @@ export default class LayersFactory {
 
         const getBuildingElevation = (data) => {
             let otherTags = data.properties.other_tags;
-            console.log("environment");
-            console.log(process.env);
             if (otherTags) {
                 console.log(data.properties.other_tags);
                 const extractBuildingHeight = /building:levels"=>"([0-9]+)/;
@@ -54,7 +51,7 @@ export default class LayersFactory {
             }
 
         };
-        let i =100;
+
         const rosBuilding = new GeoJsonLayer({
             id: 'geojson',
             data: 'edinburgh-buildings.json',
@@ -63,13 +60,8 @@ export default class LayersFactory {
             filled: true,
             extruded: true,
             wireframe: true,
-            getElevation: d => {
-                return getBuildingElevation(d) * 3;
-            },
-            getFillColor: d => {
-
-                return d.properties.id === getSelectedBuildingId() ? [255, 36, 0] : [55, 205, 155]
-            },
+            getElevation: d => getBuildingElevation(d) * 3,
+            getFillColor: d => d.properties.id === getSelectedBuildingId() ? [255, 36, 0] : [55, 205, 155],
             updateTriggers: {
                 getFillColor: () => console.log("check fill")
             },
