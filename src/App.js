@@ -4,6 +4,7 @@ import DeckGL from '@deck.gl/react';
 import { StaticMap } from 'react-map-gl';
 import InfoBox from './components/InfoBox'
 import AboutBox from './components/AboutBox'
+import MapGL, { Popup } from 'react-map-gl';
 import { _MapContext as MapContext, NavigationControl } from 'react-map-gl';
 
 import { registerLoaders } from '@loaders.gl/core';
@@ -22,7 +23,7 @@ export default class App extends Component {
   layersFactory = new LayersFactory();
   state = {
     title: "Click on coloured buildings for info...",
-    selectedBuildingId: null,
+    selectedBuildingInfo: null,
     initialViewState: {
       longitude: -3.1517904,
       latitude: 55.9557288,
@@ -34,6 +35,36 @@ export default class App extends Component {
   };
 
 
+
+  _renderPopup() {
+    return (
+      this.state.selectedBuildingInfo && (
+        <div className="ui card" style={{ position: 'absolute', background: 'white', left: this.state.selectedBuildingInfo.x, top: this.state.selectedBuildingInfo.y, zIndex: 100 }}>
+
+
+<div className="image">
+    <img src="./building-icon.png" />
+  </div>
+          <div className="content">
+            <div className="header">{this.state.selectedBuildingInfo.title}</div>
+            <div className="description">
+            What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting industry Lorem Ipsum has been the industry's standard dummy text ever since the
+             
+          </div>
+          </div>
+          <div className="ui two bottom attached buttons">
+            <div className="ui primary button" onClick={() => this.setState({ selectedBuildingInfo: null})}>
+              <i className="close icon"></i>
+            Close
+          </div>
+          </div>
+        </div>
+      )
+    );
+
+  }
+
+
   render() {
 
     console.log("environment");
@@ -42,6 +73,7 @@ export default class App extends Component {
 
     const goToBridges = () => {
       this.setState({
+        selectedBuildingInfo: null,
         initialViewState: {
           longitude: -3.3878494935,
           latitude: 55.9981315604,
@@ -51,7 +83,7 @@ export default class App extends Component {
           transitionDuration: 5000,
           transitionInterpolator: new FlyToInterpolator(),
         },
-        layers: [this.layersFactory.getBridgesLayer() ]
+        layers: [this.layersFactory.getBridgesLayer()]
       })
     };
 
@@ -59,14 +91,14 @@ export default class App extends Component {
     const goToRos = () => {
 
       const getSelectedBuildingId = () => {
-        return this.state.selectedBuildingId;
+        return this.state.selectedBuildingInfo && this.state.selectedBuildingInfo.selectedBuildingId;
       }
       const updateSelectedBuilding = (buildingDetails) => {
         this.setState(buildingDetails);
-        this.setState({layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId)});
-  
+        this.setState({ layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId) });
+
       };
-      
+
       this.setState({
         initialViewState: {
           longitude: -3.1517904,
@@ -80,30 +112,28 @@ export default class App extends Component {
         layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId)
       });
 
-      
-      
-    };
 
+
+    };
 
 
 
     return (
       <div>
         <AboutBox goToBridges={goToBridges} goToRos={goToRos} />
+        {this._renderPopup()}
         <DeckGL
           initialViewState={this.state.initialViewState}
           controller={true}
           layers={[this.state.layers]}
         >
-
-          <StaticMap
+          <MapGL
             reuseMaps
             mapStyle={mapStyle}
             preventStyleDiffing={true}
             mapboxApiAccessToken={MAPBOX_TOKEN}
           >
-
-            <InfoBox info={this.state} /></StaticMap>
+          </MapGL>
         </DeckGL>
       </div>
     );

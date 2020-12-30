@@ -28,10 +28,11 @@ export default class LayersFactory {
 
     getRosBuilding = (updateSelectedBuilding, getSelectedBuildingId) => {
 
-
-        const selectBuildingOrFloor = ({ object }) => {
+        const selectBuildingOrFloor = ({x, y, object}) => {
+            console.log(object);
             if (object) {
-              updateSelectedBuilding({ selectedBuildingId: object.properties.id, title: object.properties.info });
+                
+              updateSelectedBuilding({selectedBuildingInfo:{ selectedBuildingId:object.properties.id, title: object.properties.title, x, y }});
             }
           }
       
