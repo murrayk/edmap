@@ -69,7 +69,6 @@ export default class App extends Component {
     console.log("environment");
     console.log(process.env);
     let mapStyle = process.env.NODE_ENV === "development" ? 'dev-style-edinburgh.json' : 'style-edinburgh.json';
-    console.log("map style" + mapStyle)
     const goToBridges = () => {
       this.setState({
         selectedBuildingInfo: null,
