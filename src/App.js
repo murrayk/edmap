@@ -1,15 +1,10 @@
 import React, { useContext, setState, Component } from 'react';
 import DeckGL from '@deck.gl/react';
-
-import { StaticMap } from 'react-map-gl';
-import InfoBox from './components/InfoBox'
 import AboutBox from './components/AboutBox'
-import MapGL, { Popup } from 'react-map-gl';
-import { _MapContext as MapContext, NavigationControl } from 'react-map-gl';
+import MapGL from 'react-map-gl';
 
 import { registerLoaders } from '@loaders.gl/core';
 import { GLTFLoader } from '@loaders.gl/gltf';
-import { useState, useCallback } from 'react';
 import { FlyToInterpolator } from 'deck.gl';
 import LayersFactory from "./layers/LayersFactory"
 
@@ -29,7 +24,8 @@ export default class App extends Component {
       latitude: 55.9557288,
       zoom: 16,
       pitch: 60,
-      bearing: 0
+      bearing: 0,
+      maxPitch: 89
     },
     layers: []
   };
@@ -39,24 +35,27 @@ export default class App extends Component {
   _renderPopup() {
     return (
       this.state.selectedBuildingInfo && (
-        <div className="ui card" style={{ position: 'absolute', background: 'white', left: this.state.selectedBuildingInfo.x, top: this.state.selectedBuildingInfo.y, zIndex: 100 }}>
+        <div className="ui card" style={{
+          position: 'absolute', background: 'white',
+          left: this.state.selectedBuildingInfo.x, top: this.state.selectedBuildingInfo.y, zIndex: 100
+        }}>
 
 
-<div className="image">
-    <img src="./building-icon.png" />
-  </div>
+          <div className="image">
+            <img src="./building-icon.png" />
+          </div>
           <div className="content">
             <div className="header">{this.state.selectedBuildingInfo.title}</div>
             <div className="description">
-            What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting industry Lorem Ipsum has been the industry's standard dummy text ever since the
-             
-          </div>
+              What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
+              printing and typesetting industry Lorem Ipsum has been the industry's standard dummy text ever since the
+            </div>
           </div>
           <div className="ui two bottom attached buttons">
-            <div className="ui primary button" onClick={() => this.setState({ selectedBuildingInfo: null})}>
+            <div className="ui primary button" onClick={() => this.setState({ selectedBuildingInfo: null })}>
               <i className="close icon"></i>
-            Close
-          </div>
+              Close
+            </div>
           </div>
         </div>
       )
@@ -69,8 +68,8 @@ export default class App extends Component {
 
     console.log("environment");
     console.log(process.env);
-    let mapStyle = process.NODE_ENV === "development" ? 'dev-style-edinburgh.json' : 'style-edinburgh.json';
-
+    let mapStyle = process.env.NODE_ENV === "development" ? 'dev-style-edinburgh.json' : 'style-edinburgh.json';
+    console.log("map style" + mapStyle)
     const goToBridges = () => {
       this.setState({
         selectedBuildingInfo: null,
@@ -86,6 +85,23 @@ export default class App extends Component {
         layers: [this.layersFactory.getBridgesLayer()]
       })
     };
+
+    const terrainMap = () => {
+      this.setState({
+        initialViewState: {
+          longitude: -3.1517904,
+          latitude: 55.9557288,
+          zoom: 14,
+          pitch: 70,
+          bearing: 0,
+          maxPitch: 89,
+          transitionDuration: 5000,
+          transitionInterpolator: new FlyToInterpolator()
+        },
+        layers: this.layersFactory.getTerrainLayer()
+      });
+
+    }
 
 
     const goToRos = () => {
@@ -111,16 +127,13 @@ export default class App extends Component {
         },
         layers: this.layersFactory.getRosBuilding(updateSelectedBuilding, getSelectedBuildingId)
       });
-
-
-
     };
 
 
 
     return (
       <div>
-        <AboutBox goToBridges={goToBridges} goToRos={goToRos} />
+        <AboutBox goToBridges={goToBridges} goToRos={goToRos} terrainMap={terrainMap} />
         {this._renderPopup()}
         <DeckGL
           initialViewState={this.state.initialViewState}

@@ -1,11 +1,39 @@
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { GeoJsonLayer } from "deck.gl";
+import {TerrainLayer} from '@deck.gl/geo-layers';
 
 const FORTH_ROAD_BRIDGE_URL = 'forth-road-bridge.json';
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibXVycmF5aGtpbmciLCJhIjoiZVVfeGhqNCJ9.WJaoPywqu21-rgRkQJqsKQ'; 
+const TERRAIN_IMAGE = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png`;
+const SURFACE_IMAGE = `https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token=${MAPBOX_TOKEN}`;
+const ELEVATION_DECODER = {
+    rScaler: 256,
+    gScaler: 1,
+    bScaler: 1/256,
+    offset: -32768
+  };
 export default class LayersFactory {
 
 
-    getBridgesLayer = () => {
+    getTerrainLayer(){
+
+        const terrainLayer = new TerrainLayer({
+            id: 'terrain',
+            minZoom: 0,
+            maxZoom: 23,
+            elevationDecoder: ELEVATION_DECODER,
+            elevationData: TERRAIN_IMAGE,
+            texture: SURFACE_IMAGE,
+            wireframe: false,
+            color: [255, 255, 255]
+          });
+
+        return terrainLayer;
+        
+    }
+
+
+    getBridgesLayer (){
 
         const bridgeSceneGraph = new ScenegraphLayer({
             id: 'scenegraph-layer',
@@ -26,7 +54,7 @@ export default class LayersFactory {
 
     }
 
-    getRosBuilding = (updateSelectedBuilding, getSelectedBuildingId) => {
+    getRosBuilding (updateSelectedBuilding, getSelectedBuildingId){
 
         const selectBuildingOrFloor = ({x, y, object}) => {
             console.log(object);

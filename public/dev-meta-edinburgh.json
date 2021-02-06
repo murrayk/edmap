@@ -14,7 +14,7 @@
     "profile": "mercator",
     "scale": 1,
 
-    "tiles": ["http://localhost:3000/lothian/{z}/{x}/{y}.pbf"],
+    "tiles": ["https://map-tiles-edinburgh.s3.eu-west-2.amazonaws.com/tiles/lothian/{z}/{x}/{y}.pbf"],
     "tilejson": "2.0.0",
     "scheme": "xyz",
     "grids": ["http://localhost:3000/lothian/{z}/{x}/{y}.grid.json"],
